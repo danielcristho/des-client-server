@@ -1,9 +1,12 @@
-from flask import Flask
+from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask_socketio import join_room, leave_room, send, SocketIO
 
 
-plainText = StringVar()
-cipherText = StringVar()
-mainKey = StringVar()
+# plainText = StringVar()
+# cipherText = StringVar()
+# mainKey = StringVar()
+
+
 
 hexa_to_bin = {
                 '0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100',

@@ -2,9 +2,6 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 from flask_socketio import join_room, leave_room, send, SocketIO
 
 
-# plainText = StringVar()
-# cipherText = StringVar()
-# mainKey = StringVar()
 
 
 

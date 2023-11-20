@@ -1,25 +1,3 @@
-from tkinter import  *
-from tkinter.scrolledtext import ScrolledText
-
-T = Tk()
-T.geometry("940x700")
-T.title("DES Algorithm")
-T.configure(background="lightblue")
-
-plainText = StringVar()
-cipherText = StringVar()
-mainKey = StringVar()
-
-#================================== DEFINE THE CLEAR FUNCTIONS HERE ==========================
-
-def clear1():
-    plainText.delete(1.0,END)
-
-def clear2():
-    cipherText.delete(1.0,END)
-
-#=============================================================================================
-
 hexa_to_bin = {
                 '0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100',
                 '5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001',
@@ -34,8 +12,7 @@ hexa_to_char = {
                 '4f':'O', '50':'P', '51':'Q', '52':'R', '53':'S', '54':'T', '55':'U', '56':'V', '57':'W', '58':'X', '59':'Y', '5a':'Z'
 }
 
-
-#===========================================S-BOX (Subtitusion) satu set S-box dengan 64 entri. Setiap entri terdiri dari 6-bit============================================
+#=========================================== S-BOX (Subtitusion) ============================================
 
 Sboxes = [
         {
@@ -811,28 +788,3 @@ def Decrypt():
 
                         finalPlain_Text = s.join(Plain_Char_List)
                         plainText.insert(INSERT, finalPlain_Text)
-
-#================================= CREATE THE NECESSARY WIDGETS HERE ==============================
-
-Label1 = Label(T, text="Key", font="Calibri", bg="lightblue").place(x=60, y=60)
-ED_Key = Entry(T, textvariable=mainKey, font="Calibri", width="50").place(x=60, y=100)
-
-Label2 = Label(T, text="The Plain Text", font="Calibri", bg="lightblue").place(x=140, y=160)
-clearBtn1 = Button(T, text="Clear", width="8", font="Calibri", command=clear1).place(x=180, y=310)
-
-Label3 = Label(T, text="The Cipher Text", font="Calibri", bg="lightblue").place(x=560, y=160)
-clearBtn2 = Button(T, text="Clear", width="8", font="Calibri", command=clear2).place(x=670, y=310)
-
-encBtn = Button(T, text="Encrypt", width="8", font="Calibri", command=Encrypt).place(x=435, y=205)
-decBtn = Button(T, text="Decrypt", width="8", font="Calibri", command=Decrypt).place(x=435, y=250)
-
-plainText = ScrolledText(T, height=5, width=40)
-cipherText = ScrolledText(T, height=5, width=40)
-plainText.grid(row=1, column=1)
-cipherText.grid(row=1, column=1)
-plainText.place(x=60, y=200)
-cipherText.place(x=540, y=200)
-
-T.mainloop()
-
-#===================================================================================================

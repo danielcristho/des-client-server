@@ -1,3 +1,5 @@
+cipherText = ""
+
 hexa_to_bin = {
                 '0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100',
                 '5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001',
@@ -12,7 +14,8 @@ hexa_to_char = {
                 '4f':'O', '50':'P', '51':'Q', '52':'R', '53':'S', '54':'T', '55':'U', '56':'V', '57':'W', '58':'X', '59':'Y', '5a':'Z'
 }
 
-#=========================================== S-BOX (Subtitusion) ============================================
+
+#===========================================  S-BOX (Subtitusion) ============================================
 
 Sboxes = [
         {
@@ -97,7 +100,7 @@ Sboxes = [
 },
         ]
 
-def Encrypt():
+def Encrypt(mainKey, initial_msg, plainText):
 
     #====================== Key Processing (Melakukan permutasi awal pada kunci menggunakan tabel PC1) ===========================================
 
@@ -117,10 +120,10 @@ def Encrypt():
                 if i == j:
                     tempKey.append(hexa_to_bin[j])
         binKey  = s.join(tempKey)
+
+        print("Cipher text =", " ", Cipher)
         print("The binary representational for your key is: \n")
         print(binKey,"\n")
-
-        #==============================================================================
 
         #========== process key bits on a permutation array of 56 index, dengan mengabaikan 8 bit paritas ================
 
@@ -255,7 +258,7 @@ def Encrypt():
         Message Processing
         Mengambil dan Mengecek Panjang Pesan
         """
-        initialMsg = plainText.get(1.0,END) # menangani inputan dari user
+        initialMsg = plainText.get(1.0)
         print(len(initialMsg))
 
         if len(initialMsg) < 9 or len(initialMsg) > 9: # cek
@@ -297,8 +300,6 @@ def Encrypt():
             #print("The message after the IP \n")
             msgIP = s.join(tempIPList)
             #print(msgIP, "\n")
-
-            #===============================================================================
 
             L0 = msgIP[:32]
             R0 = msgIP[-32:]
@@ -386,7 +387,6 @@ def Encrypt():
                         elif (F[n] == '0' and PreviousL[n] == '1' or F[n] == '1' and PreviousL[n] == '0'):
                             tempNewR.append('1')
 
-
                     NextR = s.join(tempNewR)
                     RightSideList.append(NextR)
                     print(NextR, "\n")
@@ -419,7 +419,8 @@ def Encrypt():
                             count += 1
 
                         Cipher = s.join(tempCipherList)
-                        print("Cipher text ="," ",Cipher)
+                        print("Cipher text =", " ", cipherText)
+
 
                         divideCipher = []; start = 0; inc = 3; end = 63
                         while(start <= end):
@@ -438,7 +439,7 @@ def Encrypt():
                         #print(Cipher_Hexa)
 
                         Cipher_Hexa = s.join(Cipher_Hexa_List)
-                        cipherText.insert(INSERT,Cipher_Hexa)
+                        cipherText.insert(Cipher_Hexa)
 
 def Decrypt():
 
@@ -590,7 +591,7 @@ def Decrypt():
 
         # ============================ Message Processing ===============================
 
-        cipherMsg = cipherText.get(1.0,END)
+        cipherMsg = cipherText.get(1.0)
 
         if len(cipherMsg) < 17 or len(cipherMsg) > 17:
             print("Your cipher text is not matched the 64-bit length!")

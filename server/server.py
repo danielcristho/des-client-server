@@ -2,13 +2,18 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 from flask_socketio import join_room, leave_room, send, SocketIO
 from string import ascii_uppercase
 from des import Decrypt, Encrypt
+from dotenv import load_dotenv
 import random
+import threading
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config.from_pyfile("config.py")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
-#===============Constatant==================
+#======== Constatant ========
 rooms = {}
 
 def generate_unique_code(length):
@@ -27,10 +32,14 @@ def generate_unique_code(length):
 
 @app.route("/", methods=["POST", "GET"])
 def index():
-    session.clear() # Session must be clear when user get request to '/' endpoint.
+    """
+    Session must be clear when user get request to '/' endpoint.
+    usersname & room handler
+    """
+    session.clear()
     if request.method == "POST":
-        name = request.form.get("name") # users name
-        code = request.form.get("code") # room code
+        name = request.form.get("name")
+        code = request.form.get("code")
         join = request.form.get("join", False) # join button => if not submit this variable will be False
         create = request.form.get("create", False) # create button => if not submit this variable will be False
 
@@ -38,12 +47,15 @@ def index():
             flash("Please choose a username before continuing.")
             return render_template("index.html", code=code, name=name)
 
-        if join != False and not code: # If user submit join button but field is empty.
+        """
+        If user submit join button but field is empty.
+        """
+        if join != False and not code:
             flash("Please enter a room code.")
             return render_template("index.html", code=code, name=name)
 
         room = code
-        if create != False: # If user sucmit create button
+        if create != False: # If user submit create button
             room = generate_unique_code(4) # Generate unique code
             rooms[room] = {"members": 0, "messages": []} # create room in session
         elif code not in rooms:
@@ -70,14 +82,28 @@ def message(data):
     if room not in rooms:
         return
 
+    original_message = data["data"]
+    main_key = session.get("main_key")
+
+    encryption_thread = threading.Thread(target=encrypt_message, args=(main_key, original_message, room))
+    encryption_thread.start()
+
+    encrypted_message = Encrypt(main_key, original_message)
+
     content = {
         "name": session.get("name"),
-        "message": data["data"]
+        "message": encrypted_message
     }
 
+    # content = {
+    #     "name": session.get("name"),
+    #     "message": data["data"]
+    # }
+
     send(content, to=room)
-    rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
+
+    print(f"Encrypting with main key: {main_key}")
+    print(f"Original message: {original_message}")
 
 @socketio.on("connect")
 def connect(auth):

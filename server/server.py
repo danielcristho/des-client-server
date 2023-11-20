@@ -85,25 +85,22 @@ def message(data):
     original_message = data["data"]
     main_key = session.get("main_key")
 
-    encryption_thread = threading.Thread(target=encrypt_message, args=(main_key, original_message, room))
-    encryption_thread.start()
+    if main_key is not None:
+        plainText = ""
 
-    encrypted_message = Encrypt(main_key, original_message)
+        encrypted_message = Encrypt(main_key, original_message, plainText)
 
-    content = {
-        "name": session.get("name"),
-        "message": encrypted_message
-    }
+        content = {
+            "name": session.get("name"),
+            "message": encrypted_message
+        }
 
-    # content = {
-    #     "name": session.get("name"),
-    #     "message": data["data"]
-    # }
+        send(content, to=room)
 
-    send(content, to=room)
-
-    print(f"Encrypting with main key: {main_key}")
-    print(f"Original message: {original_message}")
+        print(f"Encrypting with main key: {main_key}")
+        print(f"Original message: {original_message}")
+    else:
+        print("Main key is None, encryption cannot be performed.")
 
 @socketio.on("connect")
 def connect(auth):

@@ -418,30 +418,54 @@ def Encrypt(mainKey, initial_msg, plainText):
                             tempCipherList.append(tempCipher[ipInverse[count] - 1])
                             count += 1
 
-                        Cipher = s.join(tempCipherList)
-                        print("Cipher text =", " ", cipherText)
+                        Cipher = ''.join(tempCipherList)
 
-
-                        divideCipher = []; start = 0; inc = 3; end = 63
-                        while(start <= end):
+                        divideCipher = []
+                        start = 0
+                        inc = 3
+                        end = 63
+                        while start <= end:
                             divideCipher.append(Cipher[start:inc + 1])
                             start = inc + 1
                             inc += 4
-
-                        #print(divideCipher)
-
                         Cipher_Hexa_List = []
-                        s = ''
                         for c1 in divideCipher:
                             for d1 in hexa_to_bin:
                                 if c1 == hexa_to_bin[d1]:
                                     Cipher_Hexa_List.append(d1)
-                        #print(Cipher_Hexa)
 
-                        Cipher_Hexa = s.join(Cipher_Hexa_List)
-                        cipherText.insert(Cipher_Hexa)
+                        Cipher_Hexa = ''.join(Cipher_Hexa_List)
 
-def Decrypt():
+                        return Cipher_Hexa
+
+                        # while (count <= len(ipInverse) - 1):
+                        #     tempCipherList.append(tempCipher[ipInverse[count] - 1])
+                        #     count += 1
+
+                        # Cipher = s.join(tempCipherList)
+                        # print("Cipher text =", " ", cipherText)
+
+
+                        # divideCipher = []; start = 0; inc = 3; end = 63
+                        # while(start <= end):
+                        #     divideCipher.append(Cipher[start:inc + 1])
+                        #     start = inc + 1
+                        #     inc += 4
+
+                        # #print(divideCipher)
+
+                        # Cipher_Hexa_List = []
+                        # s = ''
+                        # for c1 in divideCipher:
+                        #     for d1 in hexa_to_bin:
+                        #         if c1 == hexa_to_bin[d1]:
+                        #             Cipher_Hexa_List.append(d1)
+                        # #print(Cipher_Hexa)
+
+                        # Cipher_Hexa = s.join(Cipher_Hexa_List)
+                        # cipherText.insert(Cipher_Hexa)
+
+def Decrypt(mainKey, initial_msg, plainText):
 
     #====================== Key Processing ===========================================
 
@@ -788,4 +812,4 @@ def Decrypt():
                                     Plain_Char_List.append(hexa_to_char[c1])
 
                         finalPlain_Text = s.join(Plain_Char_List)
-                        plainText.insert(INSERT, finalPlain_Text)
+                        plainText.insert(finalPlain_Text)

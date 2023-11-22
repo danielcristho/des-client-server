@@ -104,10 +104,12 @@ def Encrypt(mainKey, initial_msg, plainText):
 
     #====================== Key Processing (Melakukan permutasi awal pada kunci menggunakan tabel PC1) ===========================================
 
-    initialKey = mainKey.get().lower()
+    initialKey = mainKey.lower()
 
     if len(initialKey) < 8 or len(initialKey) > 8:
         print("Please, enter 64 bits or 8 bytes as initial key ")
+        return None
+
     else:
         byteKey = initialKey.encode('utf-8')
         hexaKey   = str(byteKey.hex())
@@ -411,10 +413,39 @@ def Encrypt(mainKey, initial_msg, plainText):
                                 33,     1,   41,     9,    49,   17,    57,   25
                         ]
 
+                        # count = 0
+                        # s = ''
+                        # tempCipherList = []
+                        # while (count <= len(ipInverse) - 1):
+                        #     tempCipherList.append(tempCipher[ipInverse[count] - 1])
+                        #     count += 1
+
+                        # Cipher = ''.join(tempCipherList)
+
+                        # divideCipher = []
+                        # start = 0
+                        # inc = 3
+                        # end = 63
+                        # while start <= end:
+                        #     divideCipher.append(Cipher[start:inc + 1])
+                        #     start = inc + 1
+                        #     inc += 4
+                        # Cipher_Hexa_List = []
+                        # for c1 in divideCipher:
+                        #     for d1 in hexa_to_bin:
+                        #         if c1 == hexa_to_bin[d1]:
+                        #             Cipher_Hexa_List.append(d1)
+
+                        # Cipher_Hexa = ''.join(Cipher_Hexa_List)
+
+                        # return Cipher_Hexa
+
                         count = 0
-                        s = ''
                         tempCipherList = []
-                        while (count <= len(ipInverse) - 1):
+                        Cipher = ''  # Initialize Cipher
+
+                        # Reordering the characters based on ipInverse
+                        while count < len(ipInverse):
                             tempCipherList.append(tempCipher[ipInverse[count] - 1])
                             count += 1
 
@@ -424,19 +455,27 @@ def Encrypt(mainKey, initial_msg, plainText):
                         start = 0
                         inc = 3
                         end = 63
+
+                        # Breaking the Cipher into chunks
                         while start <= end:
                             divideCipher.append(Cipher[start:inc + 1])
                             start = inc + 1
                             inc += 4
+
                         Cipher_Hexa_List = []
-                        for c1 in divideCipher:
-                            for d1 in hexa_to_bin:
-                                if c1 == hexa_to_bin[d1]:
-                                    Cipher_Hexa_List.append(d1)
+
+                        # Converting binary chunks to hexadecimal
+                        for chunk in divideCipher:
+                            for hex_value, bin_value in hexa_to_bin.items():
+                                if chunk == bin_value:
+                                    Cipher_Hexa_List.append(hex_value)
 
                         Cipher_Hexa = ''.join(Cipher_Hexa_List)
 
+                        print("Cipher text =", " ", Cipher)
+
                         return Cipher_Hexa
+
 
                         # while (count <= len(ipInverse) - 1):
                         #     tempCipherList.append(tempCipher[ipInverse[count] - 1])
@@ -464,6 +503,10 @@ def Encrypt(mainKey, initial_msg, plainText):
 
                         # Cipher_Hexa = s.join(Cipher_Hexa_List)
                         # cipherText.insert(Cipher_Hexa)
+# mainKey = plainText  # Replace with your actual main key
+# initialsg = plainText  # Replace with your actual initial message
+# result = Encrypt(mainKey, initial_msg)
+# print("Encrypted Message:", result)
 
 def Decrypt(mainKey, initial_msg, plainText):
 

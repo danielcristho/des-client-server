@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Chat App</title>
-<link
-    rel="stylesheet"
-    href="{{url_for('static', filename='style.css')}}"
-/>
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+    <meta charset="UTF-8" />
+    <title>Chat App</title>
+    <link
+        rel="stylesheet"
+        href="{{url_for('static', filename='style.css')}}"
+    />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+    >
+<!-- <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"
     integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
     crossorigin="anonymous"
-></script>
+>
+</script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="content">{% block content %} {% endblock %}</div>
+    <div class="content">{% block content %} {% endblock %}</div>
 </body>
 </html>

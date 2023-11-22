@@ -82,13 +82,14 @@ def message(data):
     if room not in rooms:
         return
 
-    original_message = data["data"]
     main_key = session.get("main_key")
+    plain_text = data.get("data")
 
-    if main_key is not None:
-        plainText = ""
+    if main_key is not None and plain_text is not None:
+        encryption_thread = threading.Thread(target=encrypt_message, args=(main_key, plain_text, room))
+        encryption_thread.start()
 
-        encrypted_message = Encrypt(main_key, original_message, plainText)
+        encrypted_message = Encrypt(main_key, plain_text)
 
         content = {
             "name": session.get("name"),
@@ -98,9 +99,48 @@ def message(data):
         send(content, to=room)
 
         print(f"Encrypting with main key: {main_key}")
-        print(f"Original message: {original_message}")
+        print(f"Original message: {plain_text}")
     else:
-        print("Main key is None, encryption cannot be performed.")
+        print("Main key or plain text is None, encryption cannot be performed.")
+
+@app.route('/encrypt', methods=['POST'])
+def encrypt_message():
+    if request.method == 'POST':
+        main_key = request.form.get('main_key')
+        initial_msg = request.form.get('initial_msg')
+        plain_text = request.form.get('plain_text')
+
+        result = Encrypt(main_key, initial_msg, plain_text)
+
+        # You might want to do something with the result, for example, add it to the room messages
+        room = session.get("room")
+        content = {
+            "name": session.get("name"),
+            "message": result
+        }
+        send(content, to=room)
+
+        # You can also store the encrypted message in the room's messages
+        rooms[room]["messages"].append(content)
+
+
+# @app.route('/encrypt', methods=['POST'])
+# def encrypt_message():
+#     if request.method == 'POST':
+#         main_key = request.form.get('main_key')
+#         initial_msg = request.form.get('initial_msg')
+#         plain_text = request.form.get('plain_text')
+
+#         result = Encrypt(main_key, initial_msg, plain_text)
+
+# def encrypt_message(main_key, original_message, room, plainText):
+#     encrypted_message = Encrypt(main_key, original_message, plainText)
+
+#     content = {
+#         "name": session.get("name"),
+#         "message": encrypted_message
+#     }
+#     send(content, to=room)
 
 @socketio.on("connect")
 def connect(auth):

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from string import ascii_uppercase
 from des import Decrypt, Encrypt
 from dotenv import load_dotenv
@@ -13,7 +13,6 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
-#======== Constatant ========
 rooms = {}
 
 def generate_unique_code(length):
@@ -32,14 +31,10 @@ def generate_unique_code(length):
 
 @app.route("/", methods=["POST", "GET"])
 def index():
-    """
-    Session must be clear when user get request to '/' endpoint.
-    usersname & room handler
-    """
-    session.clear()
+    session.clear() # Session must be clear when user get request to '/' endpoint.
     if request.method == "POST":
-        name = request.form.get("name")
-        code = request.form.get("code")
+        name = request.form.get("name") # users name
+        code = request.form.get("code") # room code
         join = request.form.get("join", False) # join button => if not submit this variable will be False
         create = request.form.get("create", False) # create button => if not submit this variable will be False
 
@@ -47,15 +42,12 @@ def index():
             flash("Please choose a username before continuing.")
             return render_template("index.html", code=code, name=name)
 
-        """
-        If user submit join button but field is empty.
-        """
-        if join != False and not code:
+        if join != False and not code: # If user submit join button but field is empty.
             flash("Please enter a room code.")
             return render_template("index.html", code=code, name=name)
 
         room = code
-        if create != False: # If user submit create button
+        if create != False: # If user sucmit create button
             room = generate_unique_code(4) # Generate unique code
             rooms[room] = {"members": 0, "messages": []} # create room in session
         elif code not in rooms:
@@ -76,71 +68,50 @@ def room():
 
     return render_template("room.html", code=room, messages=rooms[room]["messages"]) # Send messages of the room we have in the session to room.html
 
+@app.route("/encrypt", methods=["POST"])
+def encrypt():
+    if request.method == "POST":
+        main_key = request.form.get("key")
+        plain_text = request.form.get("message")
+        cipher_text = Encrypt(main_key, plain_text, plain_text)
+        return jsonify({"result": cipher_text})
+
+@app.route("/decrypt", methods=["POST"])
+def decrypt():
+    if request.method == "POST":
+        message = request.form.get("message")
+        key = request.form.get("key")
+        decrypted = Decrypt(message, key)
+        return decrypted
+
 @socketio.on("message")
 def message(data):
     room = session.get("room")
     if room not in rooms:
         return
 
-    main_key = session.get("main_key")
-    plain_text = data.get("data")
+    content = {
+        "name": session.get("name"),
+        "message": data["data"]
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{session.get('name')} said: {data['data']}")
 
-    if main_key is not None and plain_text is not None:
-        encryption_thread = threading.Thread(target=encrypt_message, args=(main_key, plain_text, room))
-        encryption_thread.start()
+@socketio.on("leave_room")
+def leave_room_event():
+    room = session.get("room")
+    name = session.get("name")
+    if not room or not name:
+        return
+    if room not in rooms:
+        leave_room(room)
+        return
 
-        encrypted_message = Encrypt(main_key, plain_text)
-
-        content = {
-            "name": session.get("name"),
-            "message": encrypted_message
-        }
-
-        send(content, to=room)
-
-        print(f"Encrypting with main key: {main_key}")
-        print(f"Original message: {plain_text}")
-    else:
-        print("Main key or plain text is None, encryption cannot be performed.")
-
-@app.route('/encrypt', methods=['POST'])
-def encrypt_message():
-    if request.method == 'POST':
-        main_key = request.form.get('main_key')
-        initial_msg = request.form.get('initial_msg')
-        plain_text = request.form.get('plain_text')
-
-        result = Encrypt(main_key, initial_msg, plain_text)
-
-        # You might want to do something with the result, for example, add it to the room messages
-        room = session.get("room")
-        content = {
-            "name": session.get("name"),
-            "message": result
-        }
-        send(content, to=room)
-
-        # You can also store the encrypted message in the room's messages
-        rooms[room]["messages"].append(content)
-
-
-# @app.route('/encrypt', methods=['POST'])
-# def encrypt_message():
-#     if request.method == 'POST':
-#         main_key = request.form.get('main_key')
-#         initial_msg = request.form.get('initial_msg')
-#         plain_text = request.form.get('plain_text')
-
-#         result = Encrypt(main_key, initial_msg, plain_text)
-
-# def encrypt_message(main_key, original_message, room, plainText):
-#     encrypted_message = Encrypt(main_key, original_message, plainText)
-
-#     content = {
-#         "name": session.get("name"),
-#         "message": encrypted_message
-#     }
-#     send(content, to=room)
+    leave_room(room)
+    send({"name": name, "message": "has left the room"}, to=room)
+    rooms[room]["members"] -= 1
+    print(f"{name} left room {room}")
 
 @socketio.on("connect")
 def connect(auth):
@@ -170,6 +141,20 @@ def disconnect():
 
     send({"name": name, "message": "has left the room"}, to=room)
     print(f"{name} has left the room {room}")
+
+@app.route("/leave") # leave endpoint
+def leave():
+    room = session.get("room")
+    name = session.get("name")
+    if room is None or name is None or room not in rooms:
+        return redirect(url_for("index"))
+
+    leave_room(room)
+    send({"name": name, "message": "has left the room"}, to=room)
+    print(f"{name} has left the room {room}")
+
+    session.clear()
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

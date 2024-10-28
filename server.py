@@ -28,7 +28,7 @@ def Main():
                     break
             print ("Decrypted Message = " + str(decryptedMessage))
             print("\n")
-            message = input("Enter the message you want to encrypt -> ")
+            message = input("#server -> ")
             #encrypting the message using DES
             finalEncryptedMessage = library.encrypt(message)
             print("Encrypted message = " + finalEncryptedMessage)

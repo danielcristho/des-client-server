@@ -12,7 +12,7 @@ def Main():
         mySocket = socket.socket()
         mySocket.connect((host,port))
 
-        message = input("Enter the message you want to encrypt -> ")
+        message = input("#client -> ")
         #encrypting the message using DES
         finalEncryptedMessage = library.encrypt(message)
         print("Encrypted message = " + finalEncryptedMessage)

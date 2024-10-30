@@ -2,18 +2,20 @@ import des
 from time import sleep
 import sys
 
-#function that convers binary to ascii
+#Function that convers binary to ascii
 def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     n = int(bits, 2)
     return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
 
-#function that convers ascii to binary
+# Function that convers ascii to binary
 def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
     bits = bin(int.from_bytes(text.encode(encoding, errors), 'big'))[2:]
     return bits.zfill(8 * ((len(bits) + 7) // 8))
 
-#function that is given a strinf of length n and a specified length m
-#   and return a list of substrings of length m
+"""
+Function that is given a string of length n and a specified length m
+and return a list of substrings of length m
+"""
 def splitIntoGroups(string,length):
     results = []
     loc = 0
@@ -26,7 +28,7 @@ def splitIntoGroups(string,length):
             temp = ""
     return results
 
-#function that takes encrypted binary and turns it into the decrypted text
+#Function that takes encrypted binary and turns it into the decrypted text
 def decrypt(message):
     #call the DES class
     toy = des.DES()
@@ -43,7 +45,7 @@ def decrypt(message):
     decryptedMessage = text_from_bits(decryptedMessage)
     return decryptedMessage
 
-#function that takes an ASCII text and turns it into the encrypted binary
+#Function that takes an ASCII text and turns it into the encrypted binary
 def encrypt(message):
     #call the DES class
     toy = des.DES()
@@ -62,7 +64,7 @@ def encrypt(message):
     finalEncryptedMessage = "".join(encryptedEntries)
     return finalEncryptedMessage
 
-#function that prints a pretty loading bar for sending the messages
+#Function that prints a pretty loading bar for sending the messages
 def sending():
     print("\nSending ",end = "")
     for j in range(5):
